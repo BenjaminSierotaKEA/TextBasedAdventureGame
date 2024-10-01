@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Room {
     private Room north;
     private Room south;
@@ -23,14 +25,19 @@ public class Room {
     private boolean visited = false;
     private boolean litUp = true;
 
+    //items:
+    private ArrayList<Item> itemsOnFloor;
+
 
     public Room(String name, String description, String shortDescription, String darkDescription){
         this.name = name;
         this.description = description;
         this.shortDescription = shortDescription;
         this.darkDescription = darkDescription;
+        this.itemsOnFloor = new ArrayList<Item>();
     }
 
+    //----------------------trying functions, for remebering which directions the player has tried to go in
     public void tryNorth(){
         triedNorth = true;
     }
@@ -106,6 +113,8 @@ public class Room {
         }
     }
 
+    //------------------visitng functions------------------
+
     public boolean isVisited(){
         return visited;
     }
@@ -168,5 +177,21 @@ public class Room {
     }
     public void darken(){
         litUp = false;
+    }
+
+
+    //----------item functions---------------
+    public void addItem(Item item){
+        itemsOnFloor.add(item);
+    }
+
+    public Item takeItem(int index){
+        Item holder = itemsOnFloor.get(index);
+        itemsOnFloor.remove(index);
+        return  holder;
+    }
+
+    public ArrayList<Item> getAllItems(){
+        return itemsOnFloor;
     }
 }

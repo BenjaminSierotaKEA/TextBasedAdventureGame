@@ -1,12 +1,21 @@
+import java.util.ArrayList;
+
 public class Player {
     private Room currentRoom;
     private Room previousRoom;
     private Room teleportRoom;
 
+    private ArrayList<Item> inventory;
+
     public Player(Room startingRoom){
         currentRoom = startingRoom;
         previousRoom = startingRoom;
         teleportRoom = startingRoom;
+        inventory = new ArrayList<Item>();
+        //test items:
+        inventory.add(new Item("Explorers Clothes", "A very durable set of clothes perfect for exploring"));
+        inventory.add(new Item("Wallet", "Contains some loose change and a few plastic cards"));
+        inventory.add(new Item("Length of rope", "60 ft of hempen rope, good for climbing "));
     }
 
 
@@ -149,4 +158,21 @@ public class Player {
     public void darken(){
         currentRoom.darken();
     }
+    //------------------------item functions-------------------------
+    //we need to sanitize input for these functions in the user interface. out of bounds throws an exception
+    public void takeItem(int index){
+        inventory.add(currentRoom.takeItem(index));
+
+    }
+
+    public void dropItem(int index){
+        currentRoom.addItem(inventory.get(index));
+        inventory.remove(index);
+    }
+
+
+    public ArrayList<Item> getInventory(){
+        return inventory;
+    }
+
 }

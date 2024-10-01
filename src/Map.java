@@ -75,8 +75,14 @@ public class Map {
         room7.setEast(room8, true);
         room8.setEast(room9, true);
 
+        //locking doors:
         room5.lockSouth();
         room2.lockWest();
+
+        //placing some items
+        room1.addItem(new Item("Rusty Key", "An ancient rusted bronze key. I wonder what it opens"));
+        room1.addItem(new Item("Skull", "A human skull from a less lucky explorer"));
+        room1.addItem(new Item("Loose Rock", "A perfectly ordinary rock."));
 
         return room1;
     }

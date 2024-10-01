@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Adventure {
     private Map maze;
     private Player player;
@@ -48,7 +50,19 @@ public class Adventure {
         player.darken();
     }
 
+    //------------------item functions---------------
 
+    public ArrayList<Item> getInventory(){
+        return player.getInventory();
+    }
+
+    public void takeItem(int index){
+        player.takeItem(index);
+    }
+
+    public void dropItem(int index){
+        player.dropItem(index);
+    }
 
 
 

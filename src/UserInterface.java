@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -10,8 +11,25 @@ public class UserInterface {
         while(!exit){
             System.out.println("Please enter a command (help for a list of commands)");
 
+            //the take and drop commands have their own switch satement that only looks at the first word. this
+            //becomes true if one of them is enntered:
+            boolean firstWordChoiceMade = false;
+
             String choice = input.next() + input.nextLine();
             choice = choice.toUpperCase();
+            String[] splitChoice = choice.split(" ");
+
+            switch (splitChoice[0]){
+                case "TAKE":
+                    firstWordChoiceMade = true;
+                    take(adventure, splitChoice);
+                    break;
+                case "DROP":
+                    firstWordChoiceMade = true;
+                    drop(adventure, splitChoice);
+                    break;
+
+            }
 
             switch(choice){
                 case "GO NORTH", "NORTH", "GO N", "N":
@@ -32,6 +50,9 @@ public class UserInterface {
                 case "HELP":
                     help();
                     break;
+                case "INVENTORY", "INVENT", "I", "BAG":
+                    displayInventory(adventure);
+                    break;
                 case "UNLOCK":
                     unlock(adventure);
                     break;
@@ -48,7 +69,10 @@ public class UserInterface {
                     exit = true;
                     break;
                 default:
-                    System.out.println("Please enter a valid command.");
+                    if(!firstWordChoiceMade){
+                        System.out.println("Please enter a valid command.");
+                    }
+
 
             }
         }
@@ -88,6 +112,17 @@ public class UserInterface {
         System.out.println(roomDescription);
         if(adventure.getCurrentRoom().allDirectionsTried()){
             printDoorways(adventure);
+        }
+
+        if(adventure.getCurrentRoom().getLitUp()){
+            System.out.println("On the floor of this room there are the following items:");
+            if(adventure.getCurrentRoom().getAllItems().size() == 0){
+                System.out.println("No items.");
+            }else{
+                for(Item item : adventure.getCurrentRoom().getAllItems()){
+                    System.out.println(item.getName());
+                }
+            }
         }
     }
 
@@ -158,6 +193,8 @@ public class UserInterface {
         System.out.println("LOOK: look around at the room you are in");
         System.out.println("HELP: print a list of commands");
         System.out.println("UNLOCK: unlock all doors facing this room");
+        System.out.println("TAKE: write this and the name of the item you wish to pick up to do so");
+        System.out.println("DROP: write this and the name of the item you wish to drop from your bag to do so");
         System.out.println("TURN ON LIGHT: light up the room with a torch");
         System.out.println("TURN OFF LIGHT: extinguish the torches in this room and darken it");
         System.out.println("XYZZY: A magic word that lets you teleport to the place you last teleported from");
@@ -191,5 +228,85 @@ public class UserInterface {
         String shortLook = adventure.getCurrentRoom().getShortDescription();
         System.out.println(shortLook);
 
+    }
+
+    //--------------------item functions-------------------------------
+    private void displayInventory(Adventure adventure){
+        ArrayList<Item> invent = adventure.getInventory();
+        System.out.println("INVENTORY CONTENTS:");
+        for (Item item : invent){
+            System.out.println(item.getName());
+        }
+    }
+
+    private void take(Adventure adventure, String[] splitChoice){
+
+        //reconstructing the item name
+        String itemName = reconstructSelection(splitChoice);
+
+
+        //checking if such an item is on the floor:
+        boolean itemIsThere = false;
+        int index = 0;
+        int counter = 0;
+        for(Item i: adventure.getCurrentRoom().getAllItems()){
+            if(i.getName().toUpperCase().equals(itemName)){
+                itemIsThere = true;
+                index = counter;
+            }
+            counter++;
+        }
+
+        //actuallu taking the item:
+        if(itemName.equals("")){
+            System.out.println("Please also enter the name of the item you wish to pickup");
+        }else if(!itemIsThere){
+            System.out.println("Could not find that item in this room");
+        }else {
+            adventure.takeItem(index);
+            System.out.println("You pick up the " + itemName + " and place it in your bag.");
+        }
+    }
+
+    private void drop(Adventure adventure, String[] splitChoice){
+
+        //making a String that contains only the item name and not the command:
+        String itemName = reconstructSelection(splitChoice);
+
+        boolean itemIsThere = false;
+        int index = -1;
+        //checking if the item is in the inventory:
+        for(int i = 0; i < adventure.getInventory().size(); i++){
+            if(adventure.getInventory().get(i).getName().toUpperCase().equals(itemName)){
+                itemIsThere = true;
+                index = i;
+            }
+        }
+
+        //dropping the item:
+        if(itemName.equals("")){
+            System.out.println("Please also enter the name of the item you wish to drop");
+        } else if (!itemIsThere) {
+            System.out.println("That item is not in your inventory");
+
+        }else {
+            System.out.println("You drop the " + itemName + " on the floor");
+            adventure.dropItem(index);
+        }
+
+    }
+
+    private String reconstructSelection(String[] splitChoice){
+        String itemName = "";
+        for(int i=1; i<splitChoice.length; i++){
+            if(i == splitChoice.length -1){
+                itemName = itemName + splitChoice[i];
+            }else {
+                itemName = itemName + splitChoice[i] + " ";
+            }
+
+        }
+
+        return itemName;
     }
 }
