@@ -83,6 +83,7 @@ public class Map {
         room1.addItem(new Item("Rusty Key", "An ancient rusted bronze key. I wonder what it opens"));
         room1.addItem(new Item("Skull", "A human skull from a less lucky explorer"));
         room1.addItem(new Item("Loose Rock", "A perfectly ordinary rock."));
+        room1.addItem(new Food("Cheese", "A piece of yummy cheese.", 40));
 
         return room1;
     }

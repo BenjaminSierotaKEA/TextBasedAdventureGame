@@ -1,8 +1,9 @@
 import java.lang.reflect.Array;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class UserInterface {
+public class UserInterface{
 
     public void gameplayLoop(Adventure adventure){
         boolean exit = false;
@@ -11,8 +12,8 @@ public class UserInterface {
         while(!exit){
             System.out.println("Please enter a command (help for a list of commands)");
 
-            //the take and drop commands have their own switch satement that only looks at the first word. this
-            //becomes true if one of them is enntered:
+            //the take and drop commands have their own switch statement that only looks at the first word. this
+            //becomes true if one of them is entered:
             boolean firstWordChoiceMade = false;
 
             String choice = input.next() + input.nextLine();
@@ -28,6 +29,9 @@ public class UserInterface {
                     firstWordChoiceMade = true;
                     drop(adventure, splitChoice);
                     break;
+                case "EAT":
+                    firstWordChoiceMade = true;
+                    eat(adventure, splitChoice);
 
             }
 
@@ -49,6 +53,9 @@ public class UserInterface {
                     break;
                 case "HELP":
                     help();
+                    break;
+                case "HEALTH":
+                    health(adventure);
                     break;
                 case "INVENTORY", "INVENT", "I", "BAG":
                     displayInventory(adventure);
@@ -128,7 +135,7 @@ public class UserInterface {
 
     private void entryLook(Adventure adventure, String outcome){
 
-        //TODO: make the door opening outcomes into enum thingies once youve reminded yourself how to make those, this sucks
+        //TODO: Maybe make the magic strings here into enum thingies if thats better suited for this
         if(outcome.equals("SUCCESS")){
             if(adventure.getCurrentRoom().isVisited()){
                 System.out.println("You've been here before.");
@@ -153,6 +160,7 @@ public class UserInterface {
 
     }
 
+    //most of this method should probably be in the adventure class
     private void printDoorways(Adventure adventure){
         String result = "There are doorways to the ";
         ArrayList<String> directions = new ArrayList<String>();
@@ -296,6 +304,7 @@ public class UserInterface {
 
     }
 
+    //This is probably a hack and could be replaced by some substring usage
     private String reconstructSelection(String[] splitChoice){
         String itemName = "";
         for(int i=1; i<splitChoice.length; i++){
@@ -308,5 +317,35 @@ public class UserInterface {
         }
 
         return itemName;
+    }
+
+    //--------------Health and food:-------------------
+
+    private void health(Adventure adventure){
+        int health = adventure.getHealth();
+        System.out.println("You currently have " + health + " health points.");
+    }
+
+    //lets eat the food on the floor first
+    private void eat(Adventure adventure, String[] splitChoice){
+        String itemName = reconstructSelection(splitChoice);
+        String outcome = adventure.eat(itemName);
+
+        switch (outcome){
+            case "SUCCESS INVENTORY":
+                System.out.println("You eat the " + itemName + " in your inventory");
+                break;
+            case "SUCCESS ROOM":
+                System.out.println("You eat the " + itemName + " you found in this room");
+                break;
+            case "NOT EDIBLE":
+                System.out.println("The " + itemName + " doesnt look very edible");
+                break;
+            case "NOT FOUND":
+                System.out.println("That item could not be found");
+                break;
+            default:
+                System.out.println("An error has occured");
+        }
     }
 }

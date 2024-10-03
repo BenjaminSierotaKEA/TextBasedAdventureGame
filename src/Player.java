@@ -5,6 +5,8 @@ public class Player {
     private Room previousRoom;
     private Room teleportRoom;
 
+    private int health = 100;
+
     private ArrayList<Item> inventory;
 
     public Player(Room startingRoom){
@@ -16,6 +18,7 @@ public class Player {
         inventory.add(new Item("Explorers Clothes", "A very durable set of clothes perfect for exploring"));
         inventory.add(new Item("Wallet", "Contains some loose change and a few plastic cards"));
         inventory.add(new Item("Length of rope", "60 ft of hempen rope, good for climbing "));
+        inventory.add(new Food("Biscuit", "A sweet, brown buiscuit", 30));
     }
 
 
@@ -175,4 +178,17 @@ public class Player {
         return inventory;
     }
 
+    //Finish this after health
+    public Boolean eat(Item foodToEat){
+        if(foodToEat instanceof Food){
+            Food food = (Food) foodToEat;
+            health +=  food.getHpRecovery();
+            return true;
+        }
+     return false;
+    }
+
+    public int getHealth() {
+        return health;
+    }
 }
