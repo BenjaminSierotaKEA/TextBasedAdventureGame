@@ -8,6 +8,7 @@ public class Player {
     private int health = 100;
 
     private ArrayList<Item> inventory;
+    private Weapon equippedWeapon;
 
     public Player(Room startingRoom){
         currentRoom = startingRoom;
@@ -18,7 +19,9 @@ public class Player {
         inventory.add(new Item("Explorers Clothes", "A very durable set of clothes perfect for exploring"));
         inventory.add(new Item("Wallet", "Contains some loose change and a few plastic cards"));
         inventory.add(new Item("Length of rope", "60 ft of hempen rope, good for climbing "));
-        inventory.add(new Food("Biscuit", "A sweet, brown buiscuit", 30));
+        inventory.add(new Food("Biscuit", "A sweet, brown buiscuit", 30, true));
+        inventory.add(new MeleeWeapon("Knife", "A large, sharp knife"));
+        inventory.add(new RangedWeapon("Gun", "An ordinary looking handgun", 3));
     }
 
 
@@ -170,6 +173,9 @@ public class Player {
 
     public void dropItem(int index){
         currentRoom.addItem(inventory.get(index));
+        if(inventory.get(index).equals(equippedWeapon)){
+            equippedWeapon = null;
+        }
         inventory.remove(index);
     }
 
@@ -179,16 +185,96 @@ public class Player {
     }
 
     //Finish this after health
-    public Boolean eat(Item foodToEat){
-        if(foodToEat instanceof Food){
-            Food food = (Food) foodToEat;
-            health +=  food.getHpRecovery();
-            return true;
+    public EatOutcomes eat(String itemToEat, boolean confirmed){
+        //first we check if the item is in the inventory (and eat it if it is)
+        int index = 0;
+        boolean inventoryNonEdible = false;
+        boolean floorNonEdible = false;
+        for(Item i : inventory){
+            if(i.getName().toUpperCase().equals(itemToEat)){
+                //checking if the item is food and downcasting it:
+                if(i instanceof Food){
+                    Food food = (Food) i;
+                    if (!food.getLooksEdible() && !confirmed){
+                        return EatOutcomes.LOOKS_BAD;
+                    }else{
+                        health += food.getHpRecovery();
+                        inventory.remove(index);
+                        return EatOutcomes.EAT_INVENTORY;
+
+                    }
+
+                }else{
+                    inventoryNonEdible = true;
+                }
+
+            }
+            index++;
         }
-     return false;
+
+        //then we check the floor:
+
+        index = 0;
+        for(Item i : currentRoom.getAllItems()){
+
+            if(i.getName().toUpperCase().equals(itemToEat)) {
+                if(i instanceof Food){
+                    Food food = (Food) i;
+                    if(!food.getLooksEdible() && !confirmed){
+                        return  EatOutcomes.LOOKS_BAD;
+                    }else {
+                        health += food.getHpRecovery();
+                        currentRoom.getAllItems().remove(index);
+                        return EatOutcomes.EAT_FLOOR;
+                    }
+
+                }else{
+                    floorNonEdible = true;
+                }
+
+            }
+            index++;
+        }
+
+        //if we dont find it anywhere we return Failure:
+        if(floorNonEdible || inventoryNonEdible){
+            return EatOutcomes.NON_EDIBLE;
+        }else{
+            return EatOutcomes.NOT_FOUND;
+        }
+
     }
 
     public int getHealth() {
         return health;
+    }
+
+    public Enum equip(String weaponToEquip){
+        for(Item i : inventory){
+            if (i.getName().toUpperCase().equals(weaponToEquip)){
+                if(i instanceof Weapon){
+                    Weapon weapon = (Weapon) i;
+                    equippedWeapon = weapon;
+                    return EquipOutcomes.SUCCESS;
+                }else{
+                    return EquipOutcomes.NOT_A_WEAPON;
+                }
+            }
+        }
+
+        return EquipOutcomes.NOT_FOUND;
+    }
+
+    public Item getEquippedWeapon(){
+        return equippedWeapon;
+    }
+
+    //souts in the attack functions are place holders until we get some enemies
+    public void attack(){
+        if (equippedWeapon == null){
+            System.out.println("You swing your fists furiously at the air");
+        }else{
+            equippedWeapon.attack();
+        }
     }
 }

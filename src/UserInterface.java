@@ -31,7 +31,16 @@ public class UserInterface{
                     break;
                 case "EAT":
                     firstWordChoiceMade = true;
-                    eat(adventure, splitChoice);
+                    eat(adventure, splitChoice, input);
+                    break;
+                case "EQUIP":
+                    firstWordChoiceMade = true;
+                    equip(adventure, splitChoice);
+                    break;
+                case "ATTACK":
+                    firstWordChoiceMade = true;
+                    attack(adventure, splitChoice);
+                    break;
 
             }
 
@@ -266,7 +275,7 @@ public class UserInterface{
         }
 
         //actuallu taking the item:
-        if(itemName.equals("")){
+        if(itemName.isEmpty()){
             System.out.println("Please also enter the name of the item you wish to pickup");
         }else if(!itemIsThere){
             System.out.println("Could not find that item in this room");
@@ -292,7 +301,7 @@ public class UserInterface{
         }
 
         //dropping the item:
-        if(itemName.equals("")){
+        if(itemName.isEmpty()){
             System.out.println("Please also enter the name of the item you wish to drop");
         } else if (!itemIsThere) {
             System.out.println("That item is not in your inventory");
@@ -327,25 +336,63 @@ public class UserInterface{
     }
 
     //lets eat the food on the floor first
-    private void eat(Adventure adventure, String[] splitChoice){
+    private void eat(Adventure adventure, String[] splitChoice, Scanner input){
         String itemName = reconstructSelection(splitChoice);
-        String outcome = adventure.eat(itemName);
+        EatOutcomes outcome = adventure.eat(itemName, false);
 
         switch (outcome){
-            case "SUCCESS INVENTORY":
+            case EAT_INVENTORY:
                 System.out.println("You eat the " + itemName + " in your inventory");
                 break;
-            case "SUCCESS ROOM":
+            case EAT_FLOOR:
                 System.out.println("You eat the " + itemName + " you found in this room");
                 break;
-            case "NOT EDIBLE":
+            case NON_EDIBLE:
                 System.out.println("The " + itemName + " doesnt look very edible");
                 break;
-            case "NOT FOUND":
+            case LOOKS_BAD:
+                System.out.println("This food doesnt exactly look like a healthy meal. Are you sure you want to eat it? (y/n)");
+                String choice = "";
+                while (!choice.equals("y") && !choice.equals("n")) {
+                    choice = input.next() + input.nextLine();
+                    if (choice.equals("y")) {
+                        adventure.eat(itemName, true);
+                        System.out.println("You eat the off-putting food anyway");
+                    }else if(choice.equals("n")){
+                        System.out.println("You decide better and dont eat the food");
+                    }else {
+                        System.out.println("Please enter a valid input.");
+                    }
+
+                }
+                break;
+            case NOT_FOUND:
                 System.out.println("That item could not be found");
                 break;
             default:
                 System.out.println("An error has occured");
         }
+    }
+
+    private void equip(Adventure adventure, String[] splitChoice){
+        String selection = reconstructSelection(splitChoice);
+        Enum result = adventure.equip(selection);
+
+        switch (result){
+            case EquipOutcomes.SUCCESS -> {
+                System.out.println("You equip the " + selection + ".");
+            }
+            case EquipOutcomes.NOT_A_WEAPON ->{
+                System.out.println("That isnt a weapon and you can't equip it.");
+            }
+            case EquipOutcomes.NOT_FOUND -> {
+                System.out.println("That item isn't in your inventory");
+            }
+            default -> System.out.println("an error has occured in the equip function");
+        }
+    }
+
+    private void attack(Adventure adventure, String[] splitChoice){
+        adventure.attack();
     }
 }
