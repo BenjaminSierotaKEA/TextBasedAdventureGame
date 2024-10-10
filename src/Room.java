@@ -27,6 +27,8 @@ public class Room {
 
     //items:
     private ArrayList<Item> itemsOnFloor;
+    //enemies:
+    private ArrayList<Enemy> enemiesInRoom;
 
 
     public Room(String name, String description, String shortDescription, String darkDescription){
@@ -35,6 +37,7 @@ public class Room {
         this.shortDescription = shortDescription;
         this.darkDescription = darkDescription;
         this.itemsOnFloor = new ArrayList<Item>();
+        this.enemiesInRoom = new ArrayList<Enemy>();
     }
 
     //----------------------trying functions, for remebering which directions the player has tried to go in
@@ -193,5 +196,24 @@ public class Room {
 
     public ArrayList<Item> getAllItems(){
         return itemsOnFloor;
+    }
+
+    //combat/enemy functions:
+    public void enemyTurn(Character player, UserInterface ui){
+        for(Enemy e: enemiesInRoom){
+            e.attack(player, ui);
+        }
+    }
+
+    public void addEnemy(Enemy enemy){
+        enemiesInRoom.add(enemy);
+    }
+
+    public void removeEnemy(Enemy enemy){
+        enemiesInRoom.remove(enemy);
+    }
+
+    public ArrayList<Enemy> getEnemiesInRoom(){
+        return enemiesInRoom;
     }
 }

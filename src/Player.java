@@ -1,11 +1,13 @@
 import java.util.ArrayList;
+import java.util.Random;
 
-public class Player {
+public class Player extends Character{
     private Room currentRoom;
     private Room previousRoom;
     private Room teleportRoom;
 
     private int health = 100;
+    private int armourClass = 12;
 
     private ArrayList<Item> inventory;
     private Weapon equippedWeapon;
@@ -15,6 +17,8 @@ public class Player {
         previousRoom = startingRoom;
         teleportRoom = startingRoom;
         inventory = new ArrayList<Item>();
+
+        super.name = "Player";
         //test items:
         inventory.add(new Item("Explorers Clothes", "A very durable set of clothes perfect for exploring"));
         inventory.add(new Item("Wallet", "Contains some loose change and a few plastic cards"));
@@ -270,11 +274,42 @@ public class Player {
     }
 
     //souts in the attack functions are place holders until we get some enemies
-    public void attack(){
-        if (equippedWeapon == null){
-            System.out.println("You swing your fists furiously at the air");
+    public int[] attack(Character target, UserInterface ui){
+        int [] attackData;
+        Random random = new Random();
+
+        if(equippedWeapon != null){
+            attackData = equippedWeapon.attack();
         }else{
-            equippedWeapon.attack();
+            attackData = new int[2];
+            attackData[0] = random.nextInt(1, 20 + 1);
+            attackData[1] = random.nextInt(1, 6+1);
         }
+
+
+       target.recieveAttack(attackData[0], attackData[1], ui, equippedWeapon, this);
+
+       //then we have all the enemies attack the player
+       currentRoom.enemyTurn(this, ui);
+
+       return attackData;
+    }
+
+    public void recieveAttack(int hitRoll, int damageRoll, UserInterface ui, Weapon attackingWeapon, Character attacker){
+        if(hitRoll > armourClass){
+            health -= damageRoll;
+            ui.enemyAttacksPlayer(attacker.getName(),hitRoll,damageRoll,true, attackingWeapon);
+        }else{
+            ui.enemyAttacksPlayer(attacker.getName(),hitRoll,damageRoll,false, attackingWeapon);
+        }
+    }
+
+    public Enemy findEnemy(String enemyToFind){
+        for(Enemy e: currentRoom.getEnemiesInRoom()){
+            if(e.getName().toUpperCase().equals(enemyToFind)){
+                return e;
+            }
+        }
+        return null;
     }
 }

@@ -139,6 +139,15 @@ public class UserInterface{
                     System.out.println(item.getName());
                 }
             }
+
+            System.out.println("Watch out! in this room are the following enemies:");
+            if(adventure.getCurrentRoom().getEnemiesInRoom().size() == 0){
+                System.out.println("No enemies.");
+            }else{
+                for(Enemy enemy : adventure.getCurrentRoom().getEnemiesInRoom()){
+                    System.out.println(enemy.getName());
+                }
+            }
         }
     }
 
@@ -214,6 +223,8 @@ public class UserInterface{
         System.out.println("DROP: write this and the name of the item you wish to drop from your bag to do so");
         System.out.println("TURN ON LIGHT: light up the room with a torch");
         System.out.println("TURN OFF LIGHT: extinguish the torches in this room and darken it");
+        System.out.println("EQUIP: equips a weapon in your inventory. type the weapons name after the command");
+        System.out.println("ATTACK: attacks an enemy in the room you are in. type their name after the command");
         System.out.println("XYZZY: A magic word that lets you teleport to the place you last teleported from");
         System.out.println("EXIT: quit the program");
     }
@@ -393,6 +404,78 @@ public class UserInterface{
     }
 
     private void attack(Adventure adventure, String[] splitChoice){
-        adventure.attack();
+        //find a target and call the adventure's attack function here
+        String selection = reconstructSelection(splitChoice);
+
+        Enemy target = adventure.findEnemy(selection);
+        if(target == null){
+            System.out.println("There is no enemy with that name in this room");
+        }else{
+            adventure.attack(target, this);
+        }
+
+
+    }
+
+    public void playerAttacksEnemy(String enemyName, int attackRoll, int damage, boolean attackHit, Weapon weapon, int enemyHealth){
+
+        if (weapon != null){
+            System.out.println("You attack the " + enemyName + " with your equipped " + weapon.getName());
+        }else{
+            System.out.println("You attack the " + enemyName + " with your fists");
+        }
+
+        if(attackHit){
+            if(attackRoll == 20){
+                System.out.println("A critical hit!");
+            }else{
+                System.out.println("You hit!");
+            }
+            System.out.println("You deal " + damage + "damage to the " + enemyName);
+        }else{
+            if(attackRoll == 1){
+                System.out.println("You critically miss the " + enemyName + ".");
+            }else if(attackRoll == 0){
+                //if the attack roll and the damage roll ae both zero, the weapon is ranged and out of uses
+                System.out.println("but your " + weapon.getName() + " was out of ammo!");
+            }else {
+                System.out.println("Your attack misses");
+            }
+        }
+
+        if(weapon instanceof RangedWeapon){
+            System.out.println("Your " + weapon.getName() + "has " + weapon.getUsesRemaining() + " ammo left");
+        }
+
+        if(enemyHealth <= 0){
+            System.out.println("The " + enemyName + " keels over and dies. it dropps its weapon" + " on the floor of the room");
+        }
+
+    }
+
+    public void enemyAttacksPlayer(String enemyName, int attackRoll, int damage, boolean attackHit, Weapon weapon){
+        if (weapon == null){
+            System.out.print("The "+ enemyName + " Attacks you with its fists. ");
+        }else{
+            System.out.print("The " + enemyName + " attacks you with its " + weapon.getName() + ". ");
+        }
+
+        if(attackHit){
+            if(attackRoll == 20){
+                System.out.println("A critical hit! its deals " + damage + " damage to you");
+            }else{
+                System.out.println("it deals " + damage + " damage to you");
+            }
+        }else{
+            if(attackRoll == 1){
+                System.out.println("It critically misses you.");
+            }else if(attackRoll == 0){
+                //If the weapon is out of ammo, the attack roll and the damage roll will both be zero
+                System.out.println("but its " + weapon.getName() + "was out of ammo!");
+            }else{
+                System.out.println("it misses you.");
+            }
+
+        }
     }
 }

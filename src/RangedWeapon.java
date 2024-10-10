@@ -1,24 +1,49 @@
+import java.util.ArrayList;
+import java.util.Random;
+
 public class RangedWeapon extends Weapon{
 
-    private int maxAmmo;
-    private int ammo;
     public RangedWeapon(String itemName, String itemDescription, int maxAmmo){
 
-        super(itemName, itemDescription);
+        super(itemName, itemDescription, maxAmmo);
         //for now, we simply set the current ammo to max ammo, and all weapons will be made with full ammo:
-        this.maxAmmo = maxAmmo;
-        this.ammo = maxAmmo;
+
+    }
+
+    public RangedWeapon(String itemName, String itemDescription, int usesRemaining, int dicetype, int diceAmount, int accuracyBonus, int damageBonus){
+        super(itemName, itemDescription, usesRemaining, dicetype, diceAmount, accuracyBonus, damageBonus);
     }
 
     @Override
-    public void attack() {
-        if(ammo > 0){
-            System.out.println("You shoot the " + super.getName() + "into the air and hit nothing");
-            ammo--;
-            System.out.println("the weapon has " + ammo + "Shots remaining");
+    public int[] attack() {
+        int hitRoll;
+        int damageRoll;
+        Random random = new Random();
+        if(super.usesRemaining > 0){
+
+            super.usesRemaining--;
+
+            hitRoll = random.nextInt(1, 20 + 1) + accuracyBonus;
+
+            //handling critical hits:
+            int diceRolls;
+            if(hitRoll == 20){
+                diceRolls = diceAmount *2;
+            }else{
+                diceRolls = diceAmount;
+            }
+
+            //now we make the damage roll:
+            damageRoll = damageBonus;
+            for(int i = 0; i < diceRolls; i++){
+                damageRoll += random.nextInt(1, dicetype + 1);
+            }
+            int[] attackData = new int[] {hitRoll, damageRoll};
+            return attackData;
 
         }else{
-            System.out.println("the " + super.getName() + " is out of ammo");
+            int[] attackData = new int[] {0, 0};
+            return attackData;
         }
     }
 }

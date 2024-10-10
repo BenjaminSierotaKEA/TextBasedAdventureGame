@@ -86,6 +86,11 @@ public class Map {
         room1.addItem(new Food("Cheese", "A piece of yummy cheese.", 40, true));
         room1.addItem(new Food("Rotten Meat", "A hunk of rotting meat. looks inedible.", -20, false));
 
+        //Adding some enemies:
+        MeleeWeapon rustySword = new MeleeWeapon("Rusty Sword", "A twisted, rusty looking sword", 0, 6, 1, 1, 1 );
+        room1.addEnemy(new Enemy("Skeleton 1", "An agressive animated skeleton with a blue glow in its eye sockets",20, 12, rustySword, room1));
+        room1.addEnemy(new Enemy("Skeleton 2", "An agressive animated skeleton with a blue glow in its eye sockets",20, 12, rustySword, room1));
+
         return room1;
     }
 }

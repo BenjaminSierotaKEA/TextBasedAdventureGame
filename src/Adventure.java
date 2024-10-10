@@ -77,8 +77,12 @@ public class Adventure {
         return  player.eat(itemToEat, confirmed);
     }
 
-    public void attack(){
-        player.attack();
+    public void attack(Character target, UserInterface ui){
+        player.attack(target, ui);
+    }
+
+    public Enemy findEnemy (String enemyToFind){
+       return player.findEnemy(enemyToFind);
     }
 
 
